@@ -1,0 +1,19 @@
+# Node.js
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Directorios de dependencias
+bower_components/
+
+# # Archivos de entorno
+# .env
+# .env.test
+# .env.production
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
