@@ -4,5 +4,5 @@ import {
     nuevoRol
 } from '../controllers/rolController.js'
 
-router.post('/', nuevoRol)
+router.post('/crear', nuevoRol)
 export default router
