@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 // import cors from "cors";
 import usuarioRoutes from "./routes/usuarioRoutes.js"
 import rolRoutes from "./routes/rolRoutes.js"
+import busesRoutes from "./routes/busesRoutes.js"
+import checkAuth from './middleware/checkAuth.js';
 // import proyectoRoutes from "./routes/proyectoRoutes.js"
 // import tareaRoutes from "./routes/tareaRoutes.js"
 
@@ -34,6 +36,7 @@ dotenv.config();
 // //Routing
 app.use('/terminal/usuarios', usuarioRoutes )
 app.use('/terminal/rol', rolRoutes )
+app.use('/terminal/buses',checkAuth, busesRoutes )
 // app.use('/api/tareas', tareaRoutes )
 
 // Conexion a la base de datos
