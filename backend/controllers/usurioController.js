@@ -3,7 +3,54 @@ import Rol from '../models/Rol.js';
 import Login from "../models/login.js";
 import ExamenAlcoholemia from "../models/Examenalcoholemia.js";
 import bcrypt from 'bcrypt'; // si quieres encriptar la contraseña
+import jwt from 'jsonwebtoken';
 
+const loginUsuario = async (req, res) => {
+  const { numero_doc, password } = req.body;
+
+  try {
+    // Buscar usuario por documento
+    const usuario = await Usuario.findOne({ numero_doc }).populate('rol');
+    if (!usuario) {
+      return res.status(404).json({ msg: "Usuario no encontrado" });
+    }
+
+    // Verificar que tenga Login (solo mecánico o admin deberían tenerlo)
+    const login = await Login.findOne({ usuario: usuario._id });
+    if (!login) {
+      return res.status(403).json({ msg: "Este usuario no tiene acceso al sistema" });
+    }
+
+    // Verificar contraseña
+    const passwordCorrecta = await bcrypt.compare(password, login.password);
+    if (!passwordCorrecta) {
+      return res.status(401).json({ msg: "Contraseña incorrecta" });
+    }
+
+    // Generar token
+    const token = jwt.sign(
+      { id: usuario._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.json({
+      msg: "Login exitoso",
+      token,
+      usuario: {
+        id: usuario._id,
+        nombre: usuario.nombre,
+        apellidos: usuario.apellidos,
+        numero_doc: usuario.numero_doc,
+        rol: usuario.rol?.rol || null
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error en el login" });
+  }
+};
 
 
 const obtenerUsuarios = async (req, res) => {
@@ -203,6 +250,7 @@ export{
     editarUsuario,
     eliminarUsuario,
     obtenerUsuario,
-    registrarExamen
+    registrarExamen,
+    loginUsuario
     
 }

@@ -7,16 +7,20 @@ import {
     editarUsuario,
     eliminarUsuario, 
     obtenerUsuario,
-    registrarExamen
+    registrarExamen,
+    loginUsuario
 } from "../controllers/usurioController.js"
 
-router.get('/', obtenerUsuarios);
-router.post('/crear', registrarUsuario)
-router.post('/examenalcohol', registrarExamen)
+import checkAuth from '../middleware/checkAuth.js';
+
+router.post('/',loginUsuario );
+router.get('/listar', checkAuth, obtenerUsuarios);
+router.post('/crear', checkAuth, registrarUsuario)
+router.post('/examenalcohol',checkAuth, registrarExamen)
 router
         .route("/:id")
-        .put(editarUsuario)
-        .delete(eliminarUsuario)
-        .get(obtenerUsuario)
+        .put(checkAuth, editarUsuario)
+        .delete(checkAuth, eliminarUsuario)
+        .get(checkAuth, obtenerUsuario)
 
 export default router

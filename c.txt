@@ -2,6 +2,7 @@
 npm install express mongoose cors dotenv
 npm install --save-dev nodemon
 npm install bcrypt
+npm install bcrypt jsonwebtoken
 
 Resultados:
 Menor a 20 mg/100 ml: Se considera sobrio y se puede conducir legalmente. 
