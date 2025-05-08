@@ -1,2 +1,11 @@
+
 npm install express mongoose cors dotenv
 npm install --save-dev nodemon
+npm install bcrypt
+
+Resultados:
+Menor a 20 mg/100 ml: Se considera sobrio y se puede conducir legalmente. 
+Entre 20 y 39 mg/100 ml: Embriaguez de grado cero. Se pueden imponer sanciones como la suspensión de la licencia de conducción. 
+Entre 40 y 99 mg/100 ml: Primer grado de embriaguez. 
+Entre 100 y 149 mg/100 ml: Segundo grado de embriaguez. 
+150 mg/100 ml o más: Tercer grado de embriaguez. 

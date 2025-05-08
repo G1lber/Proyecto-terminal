@@ -1,4 +1,10 @@
 import Usuario from "../models/Usuario.js";
+import Rol from '../models/Rol.js';
+import Login from "../models/login.js";
+import ExamenAlcoholemia from "../models/Examenalcoholemia.js";
+import bcrypt from 'bcrypt'; // si quieres encriptar la contraseña
+
+
 
 const obtenerUsuarios = async (req, res) => {
     try {
@@ -10,71 +16,133 @@ const obtenerUsuarios = async (req, res) => {
     }
 };
 
-
-const registrarUsuario = async(req, res) =>{
-    const {nombre, apellidos, numero_doc, rol} = req.body;
-    const exiteUsuario = await Usuario.findOne({numero_doc})
-
-    //Condicional comprueba el email
-    if (exiteUsuario) {
-        const error = new Error("Usuario ya existe")
-        return res.status(400).json({msg: error.message})
-    }
+const registrarUsuario = async (req, res) => {
+    const { nombre, apellidos, numero_doc, rol, password } = req.body;
+  
     try {
-        const usuario = new Usuario(req.body)
-        // usuario.token = generarId()
-        await usuario.save()
-        res.json({msg: 'Usuario Creado Correctamente'})
+      const existeUsuario = await Usuario.findOne({ numero_doc });
+      if (existeUsuario) {
+        return res.status(400).json({ msg: "Usuario ya existe" });
+      }
+  
+      // Verificamos que el rol exista
+      const rolDoc = await Rol.findById(rol);
+      if (!rolDoc) {
+        return res.status(400).json({ msg: "Rol no válido" });
+      }
+  
+      const requierePassword = ['Mecanico', 'Admin'].includes(rolDoc.rol);
+  
+      // Si el rol requiere contraseña pero no se proporciona, NO registrar al usuario
+      if (requierePassword && !password) {
+        return res.status(400).json({ msg: "Este rol requiere una contraseña para el registro" });
+      }
+  
+      // Creamos el usuario
+      const usuario = new Usuario({ nombre, apellidos, numero_doc, rol });
+      await usuario.save();
+  
+      // Si se requiere login, lo creamos
+      if (requierePassword) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const login = new Login({
+          usuario: usuario._id,
+          password: hashedPassword
+        });
+        await login.save();
+      }
+  
+      res.json({ msg: 'Usuario creado correctamente' });
+  
     } catch (error) {
-        console.log(error)
+      console.error(error);
+      res.status(500).json({ msg: "Error al registrar usuario" });
     }
-}
-
-const editarUsuario = async (req, res) => {
+  };
+  const editarUsuario = async (req, res) => {
     const { id } = req.params;
-
+    const { nombre, apellidos, rol, password } = req.body;
+  
     try {
-        const usuario = await Usuario.findById(id);
-        
-        if (!usuario) {
-            return res.status(404).json({ msg: "Usuario no encontrado" });
+      const usuario = await Usuario.findById(id);
+      if (!usuario) {
+        return res.status(404).json({ msg: "Usuario no encontrado" });
+      }
+  
+      // Evitar cambio de número de documento
+      if (req.body.numero_doc && req.body.numero_doc !== usuario.numero_doc) {
+        return res.status(400).json({ msg: "No se permite modificar el número de documento" });
+      }
+  
+      // Obtener el rol actual y el nuevo (si cambia)
+      const rolActual = await Rol.findById(usuario.rol);
+      const nuevoRol = rol ? await Rol.findById(rol) : rolActual;
+  
+      if (!nuevoRol) {
+        return res.status(400).json({ msg: "Rol no válido" });
+      }
+  
+      const rolCambio = rol && rol !== usuario.rol.toString();
+      const requierePassword = ["Mecanico", "Administrador"].includes(nuevoRol.rol);
+  
+      // Si el rol cambió a uno que requiere contraseña y no se envió contraseña
+      if (rolCambio && requierePassword && !password) {
+        return res.status(400).json({ msg: "Este rol requiere una contraseña para el registro" });
+      }
+  
+      // Actualizar campos del usuario
+      usuario.nombre = nombre || usuario.nombre;
+      usuario.apellidos = apellidos || usuario.apellidos;
+      usuario.rol = rol || usuario.rol;
+  
+      const usuarioActualizado = await usuario.save();
+  
+      // Si el nuevo rol requiere login
+      if (requierePassword) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        let login = await Login.findOne({ usuario: usuario._id });
+  
+        if (login) {
+          login.password = hashedPassword;
+          await login.save();
+        } else {
+          login = new Login({
+            usuario: usuario._id,
+            password: hashedPassword
+          });
+          await login.save();
         }
-
-        // Verifica si intentan cambiar el numero_doc
-        if (req.body.numero_doc && req.body.numero_doc !== usuario.numero_doc) {
-            return res.status(400).json({ msg: "No se permite modificar el número de documento" });
-        }
-
-        // Actualizar solo campos permitidos
-        usuario.nombre = req.body.nombre || usuario.nombre;
-        usuario.apellidos = req.body.apellidos || usuario.apellidos;
-        usuario.rol = req.body.rol || usuario.rol;
-
-        const usuarioActualizado = await usuario.save();
-
-        res.json({ msg: 'Usuario actualizado correctamente', usuario: usuarioActualizado });
+      }
+  
+      res.json({ msg: "Usuario actualizado correctamente", usuario: usuarioActualizado });
+  
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ msg: "Error al actualizar el usuario" });
+      console.error(error);
+      res.status(500).json({ msg: "Error al actualizar el usuario" });
     }
 };
 
+
 const eliminarUsuario = async (req, res) => {
     const { id } = req.params;
-
+  
     try {
-        const usuario = await Usuario.findById(id);
-
-        if (!usuario) {
-            return res.status(404).json({ msg: "Usuario no encontrado" });
-        }
-
-        await usuario.deleteOne();
-
-        res.json({ msg: "Usuario eliminado correctamente" });
+      const usuario = await Usuario.findById(id);
+  
+      if (!usuario) {
+        return res.status(404).json({ msg: "Usuario no encontrado" });
+      }
+  
+      // Eliminar el usuario
+      await usuario.deleteOne();
+  
+      // Eliminar el login asociado si existe
+      await Login.deleteOne({ usuario: usuario._id });
+  
+      res.json({ msg: "Usuario y login eliminados correctamente" });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ msg: "Error del servidor" });
+      console.log(error);
+      res.status(500).json({ msg: "Error del servidor" });
     }
 };
 
@@ -93,12 +161,48 @@ const obtenerUsuario = async (req, res) => {
         res.status(500).json({ msg: "Error al obtener el usuario" });
     }
 };
+const registrarExamen = async (req, res) => {
+    try {
+      const { id_conductor, resultado, fecha_hora } = req.body;
+  
+      if (!id_conductor || resultado === undefined || !fecha_hora) {
+        return res.status(400).json({ msg: "Todos los campos son obligatorios" });
+      }
+  
+      // Verificar si el usuario existe
+      const usuario = await Usuario.findById(id_conductor).populate('rol');
+      if (!usuario) {
+        return res.status(404).json({ msg: "Conductor no encontrado" });
+      }
+  
+      // Verificar que tenga el rol de "Conductor"
+      if (usuario.rol?.rol !== "Conductor") {
+        return res.status(400).json({ msg: "El usuario no tiene el rol de Conductor" });
+      }
+  
+      // Crear y guardar el examen
+      const examen = new ExamenAlcoholemia({
+        id_conductor,
+        resultado,
+        fecha_hora
+      });
+  
+      await examen.save();
+  
+      res.status(201).json({ msg: "Examen registrado correctamente", examen });
+  
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ msg: "Error al registrar el examen" });
+    }
+  };
 
 export{
     obtenerUsuarios,
     registrarUsuario,
     editarUsuario,
     eliminarUsuario,
-    obtenerUsuario
+    obtenerUsuario,
+    registrarExamen
     
 }

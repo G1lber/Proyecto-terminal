@@ -6,11 +6,13 @@ import {
     registrarUsuario,
     editarUsuario,
     eliminarUsuario, 
-    obtenerUsuario
+    obtenerUsuario,
+    registrarExamen
 } from "../controllers/usurioController.js"
 
 router.get('/', obtenerUsuarios);
 router.post('/crear', registrarUsuario)
+router.post('/examenalcohol', registrarExamen)
 router
         .route("/:id")
         .put(editarUsuario)
