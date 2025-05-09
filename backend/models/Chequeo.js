@@ -4,49 +4,49 @@ const chequeoSchema = new mongoose.Schema({
   id_bus: { type: mongoose.Schema.Types.ObjectId, ref: 'Buses', required: true },
   id_mecanico: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true },
   id_conductor: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true },
-  
+
   luces: {
-    luces_freno: { type: String, default: '0' },
-    direccionales: { type: String, default: '0' },
-    reversa: { type: String, default: '0' },
-    luz_interna: { type: String, default: '0' },
-    bajas: { type: String, default: '0' },
-    altas: { type: String, default: '0' },
-    farolas: { type: String, default: '0' },
-    estacionarias: { type: String, default: '0' }
+    luces_freno: { type: Boolean, default: false },
+    direccionales: { type: Boolean, default: false },
+    reversa: { type: Boolean, default: false },
+    luz_interna: { type: Boolean, default: false },
+    bajas: { type: Boolean, default: false },
+    altas: { type: Boolean, default: false },
+    farolas: { type: Boolean, default: false },
+    estacionarias: { type: Boolean, default: false }
   },
 
   vidrios: {
-    parabrisas: { type: String, default: '0' },
-    laterales: { type: String, default: '0' },
-    retrovisores: { type: String, default: '0' },
-    vidrio_trasero: { type: String, default: '0' },
-    claraboyas: { type: String, default: '0' }
+    parabrisas: { type: Boolean, default: false },
+    laterales: { type: Boolean, default: false },
+    retrovisores: { type: Boolean, default: false },
+    vidrio_trasero: { type: Boolean, default: false },
+    claraboyas: { type: Boolean, default: false }
   },
 
   seguridad: {
-    bocina: { type: String, default: '0' },
-    cinturones_delanteros: { type: String, default: '0' },
-    cinturones_traseros: { type: String, default: '0' },
-    alarma_reversa: { type: String, default: '0' },
-    manijas_puertas: { type: String, default: '0' }
+    bocina: { type: Boolean, default: false },
+    cinturones_delanteros: { type: Boolean, default: false },
+    cinturones_traseros: { type: Boolean, default: false },
+    alarma_reversa: { type: Boolean, default: false },
+    manijas_puertas: { type: Boolean, default: false }
   },
 
   emergencia: {
-    linterna_pilas: { type: String, default: '0' },
-    botiquin: { type: String, default: '0' },
-    extintor: { type: String, default: '0' },
-    martillos: { type: String, default: '0' },
-    herramienta_basica: { type: String, default: '0' },
-    conos_reflectores: { type: String, default: '0' }
+    linterna_pilas: { type: Boolean, default: false },
+    botiquin: { type: Boolean, default: false },
+    extintor: { type: Boolean, default: false },
+    martillos: { type: Boolean, default: false },
+    herramienta_basica: { type: Boolean, default: false },
+    conos_reflectores: { type: Boolean, default: false }
   },
 
   niveles: {
-    aceite: { type: String, default: '0' },
-    refrigerante: { type: String, default: '0' },
-    liquido_frenos: { type: String, default: '0' },
-    combustible: { type: String, default: '0' },
-    aceite_hidraulico: { type: String, default: '0' }
+    aceite: { type: Boolean, default: false },
+    refrigerante: { type: Boolean, default: false },
+    liquido_frenos: { type: Boolean, default: false },
+    combustible: { type: Boolean, default: false },
+    aceite_hidraulico: { type: Boolean, default: false }
   },
 
   estado_mecanico: {

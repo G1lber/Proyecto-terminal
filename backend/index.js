@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 import usuarioRoutes from "./routes/usuarioRoutes.js"
 import rolRoutes from "./routes/rolRoutes.js"
 import busesRoutes from "./routes/busesRoutes.js"
+import chequeoRoutes from "./routes/chequeoRoutes.js"
+import reporteRouter from "./routes/reportesRouter.js"
 import checkAuth from './middleware/checkAuth.js';
 // import proyectoRoutes from "./routes/proyectoRoutes.js"
 // import tareaRoutes from "./routes/tareaRoutes.js"
@@ -24,19 +26,21 @@ dotenv.config();
 // const corsOptions = {
 //     origin: function(origin, callback){
 //         if (whitelist.includes(origin)) {
-//             //Puede consultar la API 
+//             //Puede consultar la API
 //             callback(null, true)
 //         }else{
 //             //No esta permitido el req
 //             callback(new Error("Error de Cors"))
 //         }
-//     }    
+//     }
 // }
 // app.use(cors(corsOptions))
 // //Routing
 app.use('/terminal/usuarios', usuarioRoutes )
 app.use('/terminal/rol', rolRoutes )
 app.use('/terminal/buses',checkAuth, busesRoutes )
+app.use('/terminal/chequeo',checkAuth, chequeoRoutes )
+app.use('/terminal/reportes',checkAuth, reporteRouter )
 // app.use('/api/tareas', tareaRoutes )
 
 // Conexion a la base de datos

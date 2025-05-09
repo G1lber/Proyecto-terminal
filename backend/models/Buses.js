@@ -53,4 +53,4 @@ const busSchema = new mongoose.Schema({
   versionKey: false
 });
 
-export default mongoose.model('Bus', busSchema);
+export default mongoose.model('Buses', busSchema);
