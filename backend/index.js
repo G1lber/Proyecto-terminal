@@ -2,7 +2,7 @@ import express from 'express'
 import conectarDB from './config/db.js';
 import mongoose from "mongoose"
 import dotenv from "dotenv";
-// import cors from "cors";
+import cors from "cors";
 import usuarioRoutes from "./routes/usuarioRoutes.js"
 import rolRoutes from "./routes/rolRoutes.js"
 import busesRoutes from "./routes/busesRoutes.js"
@@ -20,22 +20,25 @@ dotenv.config();
 
 // conectarDB();
 
-// //Configurar CORS
-// const whitelist = [process.env.FRONTEND_URL]
+//Configurar CORS
+const whitelist = [process.env.FRONTEND_URL]
 
-// const corsOptions = {
-//     origin: function(origin, callback){
-//         if (whitelist.includes(origin)) {
-//             //Puede consultar la API
-//             callback(null, true)
-//         }else{
-//             //No esta permitido el req
-//             callback(new Error("Error de Cors"))
-//         }
-//     }
-// }
-// app.use(cors(corsOptions))
-// //Routing
+const corsOptions = {
+    origin: function(origin, callback){
+        if (whitelist.includes(origin)) {
+            //Puede consultar la API
+            callback(null, true)
+        }else{
+            //No esta permitido el req
+            callback(new Error("Error de Cors"))
+        }
+    }
+}
+app.use(cors(corsOptions))
+//Routing
+app.get('/ping', (req, res) => {
+  res.json({ msg: 'Servidor funcionando correctamente' });
+});
 app.use('/terminal/usuarios', usuarioRoutes )
 app.use('/terminal/rol', rolRoutes )
 app.use('/terminal/buses',checkAuth, busesRoutes )
