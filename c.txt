@@ -10,3 +10,9 @@ Entre 20 y 39 mg/100 ml: Embriaguez de grado cero. Se pueden imponer sanciones c
 Entre 40 y 99 mg/100 ml: Primer grado de embriaguez. 
 Entre 100 y 149 mg/100 ml: Segundo grado de embriaguez. 
 150 mg/100 ml o más: Tercer grado de embriaguez. 
+
+Paleta de colores 
+#222831
+#393E46
+#00ADB5
+#EEEEEE
