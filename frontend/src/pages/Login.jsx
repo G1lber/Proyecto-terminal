@@ -1,14 +1,16 @@
 import { useState, useCallback } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Particles from 'react-tsparticles';
 import { loadFireflyPreset } from 'tsparticles-preset-firefly';
+import clienteAxios from '../config/clienteAxios';
+import useAuth from '../hooks/useAuth'; // ✅ Importar el hook
 
 const Login = () => {
   const [numero_doc, setNumeroDoc] = useState('');
   const [password, setPassword] = useState('');
   const [mensaje, setMensaje] = useState('');
   const navigate = useNavigate();
+  const { setAuth } = useAuth(); // ✅ Usar el contexto
 
   const particlesInit = useCallback(async (engine) => {
     await loadFireflyPreset(engine);
@@ -17,11 +19,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = 'http://localhost:3000/terminal/usuarios';
-      const { data } = await axios.post(url, { numero_doc, password });
+      const { data } = await clienteAxios.post('/usuarios', {
+        numero_doc,
+        password,
+      });
 
       localStorage.setItem('token', data.token);
-      navigate('/inicio');
+      setAuth(data.usuario); // ✅ Importante para rutas protegidas
+      navigate('/usuarios');
     } catch (error) {
       setMensaje(error.response?.data?.msg || 'Error al iniciar sesión');
     }
@@ -29,7 +34,6 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4" style={{ backgroundColor: '#222831' }}>
-      {/* Partículas Firefly */}
       <Particles
         id="tsparticles"
         init={particlesInit}
@@ -40,7 +44,6 @@ const Login = () => {
         className="absolute inset-0 z-0"
       />
 
-      {/* Formulario */}
       <div
         className="relative z-10 w-full max-w-sm p-8 rounded-2xl shadow-lg"
         style={{ backgroundColor: '#393E46' }}

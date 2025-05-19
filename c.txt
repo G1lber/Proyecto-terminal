@@ -11,6 +11,8 @@ Entre 40 y 99 mg/100 ml: Primer grado de embriaguez.
 Entre 100 y 149 mg/100 ml: Segundo grado de embriaguez. 
 150 mg/100 ml o más: Tercer grado de embriaguez. 
 
+npm install react-icons
+
 Paleta de colores 
 #222831
 #393E46

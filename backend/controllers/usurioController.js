@@ -62,6 +62,33 @@ const obtenerUsuarios = async (req, res) => {
         res.status(500).json({ msg: "Error al obtener los usuarios" });
     }
 };
+const perfil = async(req, res) =>{
+    const { usuario } = req
+
+    res.json(usuario)
+}
+const buscarUsuarios = async (req, res) => {
+  const { q } = req.query;
+
+  if (!q || q.trim() === '') {
+    return res.status(400).json({ msg: 'Debes enviar un término de búsqueda' });
+  }
+
+  try {
+    const usuarios = await Usuario.find({
+      $or: [
+        { nombre: { $regex: q, $options: 'i' } },
+        { numero_doc: isNaN(q) ? -1 : Number(q) } // -1 para que no devuelva nada si q no es número
+      ]
+    }).limit(10);
+
+    res.json(usuarios);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Error en la búsqueda' });
+  }
+};
+
 
 const registrarUsuario = async (req, res) => {
     const { nombre, apellidos, numero_doc, rol, password } = req.body;
@@ -251,6 +278,7 @@ export{
     eliminarUsuario,
     obtenerUsuario,
     registrarExamen,
-    loginUsuario
-    
+    loginUsuario,
+    perfil,
+    buscarUsuarios
 }

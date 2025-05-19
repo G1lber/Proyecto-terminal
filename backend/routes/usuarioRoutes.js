@@ -8,14 +8,18 @@ import {
     eliminarUsuario, 
     obtenerUsuario,
     registrarExamen,
-    loginUsuario
+    loginUsuario,
+    perfil,
+    buscarUsuarios
 } from "../controllers/usurioController.js"
 
 import checkAuth from '../middleware/checkAuth.js';
 
 router.post('/',loginUsuario );
 router.get('/listar', checkAuth, obtenerUsuarios);
+router.get('/buscar', checkAuth, buscarUsuarios);
 router.post('/crear', checkAuth, registrarUsuario)
+router.get('/perfil', checkAuth, perfil);
 router.post('/examenalcohol',checkAuth, registrarExamen)
 router
         .route("/:id")
