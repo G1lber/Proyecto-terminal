@@ -3,6 +3,17 @@ import Empresa from '../models/Empresa.js';
 import Buses from '../models/Buses.js';
 import Estado from '../models/Estado.js';
 
+
+
+const listarEstados = async (req, res) => {
+  try {
+    const estados = await Estado.find()
+    res.json(estados)
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al obtener los estados' })
+  }
+}
+
 const crearEmpresa = async (req, res) => {
   try {
     const { nombre, direccion, telefono } = req.body;
@@ -19,6 +30,15 @@ const crearEmpresa = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: 'Error al crear la empresa' });
+  }
+};
+const listarEmpresas = async (req, res) => {
+  try {
+    const empresas = await Empresa.find(); // lista todas las empresas
+    res.json(empresas);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Error al obtener las empresas' });
   }
 };
 const listarBuses = async (req, res) => {
@@ -40,55 +60,72 @@ const listarBuses = async (req, res) => {
 
 
 const agregarBus = async (req, res) => {
-    try {
-      const { placa, num_identificacion_empresa, estado, id_empresa, conductor, copiloto, dueño, soat, tecno_mecanica } = req.body;
-  
-      // Validar existencia de empresa
+  try {
+    let {
+      placa,
+      num_identificacion_empresa,
+      estado,
+      id_empresa,
+      conductor,
+      copiloto,
+      dueño,
+      soat,
+      tecno_mecanica,
+    } = req.body;
+
+    // Convertir valores vacíos a null
+    if (copiloto === '') copiloto = null;
+
+    // Validar existencia de empresa si se proporciona
+    if (id_empresa) {
       const empresaExiste = await Empresa.findById(id_empresa);
       if (!empresaExiste) {
         return res.status(400).json({ msg: 'La empresa no existe' });
       }
-  
-      // Validar existencia del conductor
-      const conductorExiste = await Usuario.findById(conductor);
-      if (!conductorExiste) return res.status(400).json({ msg: 'Conductor no válido' });
-  
-      // Validar copiloto si se proporciona
-      if (copiloto && !(await Usuario.findById(copiloto))) {
-        return res.status(400).json({ msg: 'Copiloto no válido' });
-      }
-  
-      // Validar dueño si se proporciona
-      if (dueño && !(await Usuario.findById(dueño))) {
-        return res.status(400).json({ msg: 'Dueño no válido' });
-      }
-  
-      // Validar existencia del estado
-      const estadoExiste = await Estado.findOne({ estado });
-      if (!estadoExiste) {
-        return res.status(400).json({ msg: 'Estado no válido' });
-      }
-  
-      // Crear el bus
-      const nuevoBus = new Buses({
-        placa,
-        num_identificacion_empresa,
-        estado: estadoExiste._id,
-        id_empresa,
-        conductor,
-        copiloto: copiloto || null, // Si copiloto está vacío o no se proporciona, será null
-        dueño,
-        soat,
-        tecno_mecanica
-      });
-  
-      const busGuardado = await nuevoBus.save();
-      res.status(201).json(busGuardado);
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ msg: 'Error al crear el bus' });
     }
-  };
+
+    // Validar existencia del conductor
+    const conductorExiste = await Usuario.findById(conductor);
+    if (!conductorExiste) {
+      return res.status(400).json({ msg: 'Conductor no válido' });
+    }
+
+    // Validar copiloto si se proporciona
+    if (copiloto && !(await Usuario.findById(copiloto))) {
+      return res.status(400).json({ msg: 'Copiloto no válido' });
+    }
+
+    // Validar dueño si se proporciona
+    if (dueño && !(await Usuario.findById(dueño))) {
+      return res.status(400).json({ msg: 'Dueño no válido' });
+    }
+
+    // Validar existencia del estado
+    const estadoExiste = await Estado.findById(estado);
+    if (!estadoExiste) {
+      return res.status(400).json({ msg: 'Estado no válido' });
+    }
+
+    // Crear el bus
+    const nuevoBus = new Buses({
+      placa,
+      num_identificacion_empresa,
+      estado: estadoExiste._id,
+      id_empresa,
+      conductor,
+      copiloto,
+      dueño,
+      soat,
+      tecno_mecanica,
+    });
+
+    const busGuardado = await nuevoBus.save();
+    res.status(201).json(busGuardado);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: 'Error al crear el bus' });
+  }
+};
   const editarBus = async (req, res) => {
     try {
       const { id } = req.params;
@@ -118,7 +155,7 @@ const agregarBus = async (req, res) => {
         return res.status(400).json({ msg: 'Dueño no válido' });
       }
   
-      const estadoExiste = await Estado.findOne({ estado });
+      const estadoExiste = await Estado.findById(estado);
       if (!estadoExiste) {
         return res.status(400).json({ msg: 'Estado no válido' });
       }
@@ -168,5 +205,7 @@ export {
     editarBus,
     crearEmpresa,
     eliminarBus,
-    listarBuses
+    listarBuses,
+    listarEstados,
+    listarEmpresas
     };
