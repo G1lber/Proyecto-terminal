@@ -134,67 +134,70 @@ const registrarUsuario = async (req, res) => {
     }
   };
   const editarUsuario = async (req, res) => {
-    const { id } = req.params;
-    const { nombre, apellidos, rol, password } = req.body;
-  
-    try {
-      const usuario = await Usuario.findById(id);
-      if (!usuario) {
-        return res.status(404).json({ msg: "Usuario no encontrado" });
-      }
-  
-      // Evitar cambio de número de documento
-      if (req.body.numero_doc && req.body.numero_doc !== usuario.numero_doc) {
-        return res.status(400).json({ msg: "No se permite modificar el número de documento" });
-      }
-  
-      // Obtener el rol actual y el nuevo (si cambia)
-      const rolActual = await Rol.findById(usuario.rol);
-      const nuevoRol = rol ? await Rol.findById(rol) : rolActual;
-  
-      if (!nuevoRol) {
-        return res.status(400).json({ msg: "Rol no válido" });
-      }
-  
-      const rolCambio = rol && rol !== usuario.rol.toString();
-      const requierePassword = ["Mecanico", "Administrador"].includes(nuevoRol.rol);
-  
-      // Si el rol cambió a uno que requiere contraseña y no se envió contraseña
-      if (rolCambio && requierePassword && !password) {
-        return res.status(400).json({ msg: "Este rol requiere una contraseña para el registro" });
-      }
-  
-      // Actualizar campos del usuario
-      usuario.nombre = nombre || usuario.nombre;
-      usuario.apellidos = apellidos || usuario.apellidos;
-      usuario.rol = rol || usuario.rol;
-  
-      const usuarioActualizado = await usuario.save();
-  
-      // Si el nuevo rol requiere login
-      if (requierePassword) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        let login = await Login.findOne({ usuario: usuario._id });
-  
-        if (login) {
-          login.password = hashedPassword;
-          await login.save();
-        } else {
-          login = new Login({
-            usuario: usuario._id,
-            password: hashedPassword
-          });
-          await login.save();
-        }
-      }
-  
-      res.json({ msg: "Usuario actualizado correctamente", usuario: usuarioActualizado });
-  
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ msg: "Error al actualizar el usuario" });
+  const { id } = req.params;
+  const { nombre, apellidos, rol, password } = req.body;
+
+  try {
+    const usuario = await Usuario.findById(id);
+    if (!usuario) {
+      return res.status(404).json({ msg: "Usuario no encontrado" });
     }
+
+    // No permitir cambio de número de documento
+    if (req.body.numero_doc && req.body.numero_doc !== usuario.numero_doc) {
+      return res.status(400).json({ msg: "No se permite modificar el número de documento" });
+    }
+
+    // Obtener rol actual y nuevo
+    const rolActual = await Rol.findById(usuario.rol);
+    const nuevoRol = rol ? await Rol.findById(rol) : rolActual;
+
+    if (!nuevoRol) {
+      return res.status(400).json({ msg: "Rol no válido" });
+    }
+
+    const rolCambio = rol && rol !== usuario.rol.toString();
+    const requierePassword = ["Mecanico", "Administrador"].includes(nuevoRol.rol);
+
+    // Si el rol cambia a uno que requiere contraseña y no se envía contraseña válida
+    if (rolCambio && requierePassword && (!password || password.trim() === "")) {
+      return res.status(400).json({ msg: "Este rol requiere una contraseña para el registro" });
+    }
+
+    // Actualizar campos generales
+    usuario.nombre = nombre || usuario.nombre;
+    usuario.apellidos = apellidos || usuario.apellidos;
+    usuario.rol = rol || usuario.rol;
+
+    // Guardar usuario actualizado sin password aún
+    const usuarioActualizado = await usuario.save();
+
+    // Actualizar la contraseña solo si:
+    // - El rol requiere contraseña
+    // - Y se envió una contraseña no vacía
+    if (requierePassword && password && password.trim() !== "") {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      let login = await Login.findOne({ usuario: usuario._id });
+
+      if (login) {
+        login.password = hashedPassword;
+        await login.save();
+      } else {
+        login = new Login({
+          usuario: usuario._id,
+          password: hashedPassword,
+        });
+        await login.save();
+      }
+    }
+
+    res.json({ msg: "Usuario actualizado correctamente", usuario: usuarioActualizado });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error al actualizar el usuario" });
+  }
 };
+
 
 
 const eliminarUsuario = async (req, res) => {

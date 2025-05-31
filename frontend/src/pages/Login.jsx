@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Particles from 'react-tsparticles';
 import { loadFireflyPreset } from 'tsparticles-preset-firefly';
 import clienteAxios from '../config/clienteAxios';
-import useAuth from '../hooks/useAuth'; // ✅ Importar el hook
+import useAuth from '../hooks/useAuth'; 
 
 const Login = () => {
   const [numero_doc, setNumeroDoc] = useState('');
