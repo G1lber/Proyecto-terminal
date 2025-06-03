@@ -8,6 +8,7 @@ const Sidebar = () => {
     { path: "/buses", nombre: "Buses" },
     { path: "/alcoholemia", nombre: "Examen Alcoholemia" },
     { path: "/buses-taquilla", nombre: "Buses en taquilla" },
+    { path: "/formulario-chequeo", nombre: "Formulario de Chequeo" },
   ];
 
   return (

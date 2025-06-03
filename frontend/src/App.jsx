@@ -5,6 +5,7 @@ import Buses from './pages/Buses';
 import RutaProtegida from './layouts/RutaProtegida';
 import ExamenAlc from './pages/ExamenAlc'
 import Busestaquilla from './pages/Busestaquilla';
+import FormularioChequeo from './pages/FormularioChequeo';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/buses" element={<Buses />} />
         <Route path="/alcoholemia" element={<ExamenAlc />} />
         <Route path="/buses-taquilla" element={<Busestaquilla />} />
+        <Route path="/formulario-chequeo" element={<FormularioChequeo />} />
         {/* otras rutas protegidas */}
       </Route>
     </Routes>
