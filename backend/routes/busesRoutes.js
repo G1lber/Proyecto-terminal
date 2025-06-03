@@ -7,7 +7,8 @@ import {
     eliminarBus,
     listarBuses,
     listarEstados,
-    listarEmpresas
+    listarEmpresas,
+    obtenerBusesPorEstado
 } from '../controllers/busesController.js'
 
 router.post('/empresa', crearEmpresa)
@@ -15,6 +16,7 @@ router.post('/crear', agregarBus)
 router.get('/', listarBuses)
 router.get('/estados', listarEstados)
 router.get('/listar-empresa', listarEmpresas)
+router.get('/busesporestado', obtenerBusesPorEstado)
 router
         .route("/:id")
         .put(editarBus)

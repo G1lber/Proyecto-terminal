@@ -7,6 +7,7 @@ const Sidebar = () => {
     { path: "/usuarios", nombre: "Usuarios" },
     { path: "/buses", nombre: "Buses" },
     { path: "/alcoholemia", nombre: "Examen Alcoholemia" },
+    { path: "/buses-taquilla", nombre: "Buses en taquilla" },
   ];
 
   return (

@@ -161,11 +161,11 @@ const Buses = () => {
   setFormData({
     placa: bus.placa,
     num_identificacion_empresa: bus.num_identificacion_empresa,
-    id_empresa: bus.id_empresa?._id || "", // <- importante
-    estado: bus.estado?._id || "", // <- importante
-    conductor: bus.conductor?._id || "", // <- importante
-    copiloto: bus.copiloto?._id || "",   // <- importante
-    dueño: bus.dueño?._id || "",         // <- importante
+    id_empresa: bus.id_empresa?._id || "", 
+    estado: bus.estado?._id || "", 
+    conductor: bus.conductor?._id || "", 
+    copiloto: bus.copiloto?._id || "",   
+    dueño: bus.dueño?._id || "",        
     soat: bus.soat || false,
     tecno_mecanica: bus.tecno_mecanica || false,
   });

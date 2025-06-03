@@ -32,6 +32,26 @@ const crearEmpresa = async (req, res) => {
     res.status(500).json({ msg: 'Error al crear la empresa' });
   }
 };
+const obtenerBusesPorEstado = async (req, res) => {
+  const { estado } = req.query;
+
+  try {
+    const estadoDoc = await Estado.findOne({ estado: estado.toUpperCase() });
+    if (!estadoDoc) return res.status(404).json({ msg: 'Estado no encontrado' });
+
+    const buses = await Buses.find({ estado: estadoDoc._id })
+      .populate('conductor', 'nombre')
+      .populate('copiloto', 'nombre')
+      .populate('dueño', 'nombre')
+      .populate('id_empresa', 'nombre');
+
+    res.json(buses);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Error al obtener los buses' });
+  }
+};
+
 const listarEmpresas = async (req, res) => {
   try {
     const empresas = await Empresa.find(); // lista todas las empresas
@@ -207,5 +227,6 @@ export {
     eliminarBus,
     listarBuses,
     listarEstados,
-    listarEmpresas
+    listarEmpresas,
+    obtenerBusesPorEstado
     };
