@@ -6,7 +6,6 @@ const Sidebar = () => {
   const enlaces = [
     { path: "/usuarios", nombre: "Usuarios" },
     { path: "/buses", nombre: "Buses" },
-    { path: "/alcoholemia", nombre: "Examen Alcoholemia" },
     { path: "/buses-taquilla", nombre: "Buses en taquilla" },
     { path: "/formulario-chequeo", nombre: "Formulario de Chequeo" },
   ];

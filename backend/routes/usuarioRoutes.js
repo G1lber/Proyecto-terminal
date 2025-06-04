@@ -1,5 +1,7 @@
 import express from 'express'
 const router = express.Router();
+import multer from 'multer';
+const upload = multer();
 
 import {
     obtenerUsuarios,
@@ -20,7 +22,7 @@ router.get('/listar', checkAuth, obtenerUsuarios);
 router.get('/buscar', checkAuth, buscarUsuarios);
 router.post('/crear', checkAuth, registrarUsuario)
 router.get('/perfil', checkAuth, perfil);
-router.post('/examenalcohol',checkAuth, registrarExamen)
+router.post('/examenalcohol', checkAuth, registrarExamen);
 router
         .route("/:id")
         .put(checkAuth, editarUsuario)

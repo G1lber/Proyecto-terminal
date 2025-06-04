@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import clienteAxios from "../config/clienteAxios";
 import ModalUsuario from "../components/ModalUsuario";
+import AlcoholTestModal from "../components/AlcoholTestModal";
 
 const Usuarios = () => {
   const [busqueda, setBusqueda] = useState("");
@@ -25,7 +26,8 @@ const Usuarios = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [usuarioIdEditando, setUsuarioIdEditando] = useState(null);
 
-  // Abre modal en modo edición con datos del usuario
+  const [alcoholModalOpen, setAlcoholModalOpen] = useState(false);
+
   const abrirModalEditar = (usuario) => {
     setIsEditMode(true);
     setUsuarioIdEditando(usuario._id);
@@ -34,13 +36,12 @@ const Usuarios = () => {
       apellidos: usuario.apellidos,
       numero_doc: usuario.numero_doc,
       rol: usuario.rol,
-      password: "", // Siempre vacío para editar
+      password: "",
     });
     setModalOpen(true);
     setCrearError(null);
   };
 
-  // Abre modal en modo creación (resetea form)
   const abrirModalCrear = () => {
     setIsEditMode(false);
     setUsuarioIdEditando(null);
@@ -120,72 +121,108 @@ const Usuarios = () => {
     setCrearError(null);
   };
 
-  // Crear usuario (password obligatorio)
+  const refrescarUsuarios = async () => {
+    // refresca la lista usando el último texto de búsqueda
+    if (busqueda.trim() === "") {
+      setUsuarios([]);
+      return;
+    }
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await clienteAxios.get(`/usuarios/buscar`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { q: busqueda },
+      });
+      setUsuarios(res.data);
+    } catch (err) {
+      setError(err.response?.data?.msg || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmitCrear = async (e) => {
-    e.preventDefault();
-    setCrearLoading(true);
-    setCrearError(null);
-    try {
-      const token = localStorage.getItem("token");
+  // Asegura que preventDefault se llame solo si el evento es válido
+  if (e?.preventDefault) e.preventDefault();
+  else console.warn("Evento no válido en handleSubmitCrear");
 
-      if (!formData.password) {
-        setCrearError("La contraseña es obligatoria para crear un usuario.");
-        setCrearLoading(false);
-        return;
-      }
+  setCrearLoading(true);
+  setCrearError(null);
 
-      await clienteAxios.post("/usuarios/crear", formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      alert("Usuario creado con éxito");
-      cerrarModal();
-      setBusqueda("");
-      setUsuarios([]);
-    } catch (err) {
-      setCrearError(err.response?.data?.msg || err.message);
-    } finally {
-      setCrearLoading(false);
+  try {
+    const token = localStorage.getItem("token");
+
+    const rolSeleccionado = roles.find((r) => r._id === formData.rol);
+    const requierePassword = rolSeleccionado?.rol === "Mecanico" || rolSeleccionado?.rol === "Admin";
+
+    if (requierePassword && !formData.password?.trim()) {
+      setCrearError("La contraseña es obligatoria para este tipo de usuario.");
+      return;
     }
-  };
 
-  // Editar usuario (password opcional)
-  const handleSubmitEditar = async (e) => {
-    e.preventDefault();
-    setCrearLoading(true);
-    setCrearError(null);
-    try {
-      const token = localStorage.getItem("token");
+    const dataToSubmit = { ...formData };
+    if (!requierePassword) delete dataToSubmit.password;
 
-      // Clona formData para manipularlo sin modificar original
-      const datosParaEnviar = { ...formData };
-      if (!datosParaEnviar.password) {
-        delete datosParaEnviar.password; // No se envía password si está vacío
-      }
+    await clienteAxios.post("/usuarios/crear", dataToSubmit, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      await clienteAxios.put(`/usuarios/${usuarioIdEditando}`, datosParaEnviar, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      alert("Usuario editado con éxito");
-      cerrarModal();
-      setBusqueda("");
-      setUsuarios([]);
-    } catch (err) {
-      setCrearError(err.response?.data?.msg || err.message);
-    } finally {
-      setCrearLoading(false);
+    alert("Usuario creado con éxito");
+    cerrarModal();
+    refrescarUsuarios();
+  } catch (err) {
+    setCrearError(err.response?.data?.msg || "Error al crear el usuario.");
+  } finally {
+    setCrearLoading(false);
+  }
+};
+
+const handleSubmitEditar = async (e) => {
+  e.preventDefault();
+  setCrearLoading(true);
+  setCrearError(null);
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const datosParaEnviar = { ...formData };
+    if (!datosParaEnviar.password?.trim()) {
+      delete datosParaEnviar.password;
     }
-  };
+
+    await clienteAxios.put(`/usuarios/${usuarioIdEditando}`, datosParaEnviar, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    alert("Usuario editado con éxito");
+    cerrarModal();
+    refrescarUsuarios();
+  } catch (err) {
+    setCrearError(err.response?.data?.msg || "Error al editar el usuario.");
+  } finally {
+    setCrearLoading(false);
+  }
+};
 
   return (
     <div className="text-[#222831] p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-[#00ADB5]">Usuarios</h1>
-        <button
-          onClick={abrirModalCrear}
-          className="bg-[#00ADB5] text-white px-4 py-2 rounded-lg hover:bg-[#00bfc8] transition"
-        >
-          Crear usuario
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={abrirModalCrear}
+            className="bg-[#00ADB5] text-white px-4 py-2 rounded-lg hover:bg-[#00bfc8] transition"
+          >
+            Crear usuario
+          </button>
+          <button
+            onClick={() => setAlcoholModalOpen(true)}
+            className="bg-[#393E46] text-white px-4 py-2 rounded-lg hover:bg-[#4b515a] transition"
+          >
+            Examen alcoholemia
+          </button>
+        </div>
       </div>
 
       <div className="mb-6">
@@ -259,6 +296,11 @@ const Usuarios = () => {
         loading={crearLoading}
         error={crearError}
         isEditMode={isEditMode}
+      />
+
+      <AlcoholTestModal
+        isOpen={alcoholModalOpen}
+        onClose={() => setAlcoholModalOpen(false)}
       />
     </div>
   );
