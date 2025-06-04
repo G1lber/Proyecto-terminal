@@ -68,6 +68,7 @@ export default function Busestaquilla() {
           value={estadoSeleccionado}
           onChange={(e) => setEstadoSeleccionado(e.target.value)}
         >
+          <option value={"0"}>--Seleccione--</option>
           {estados.map((estado) => (
             <option key={estado._id} value={estado.nombre}>
               {estado.estado}
