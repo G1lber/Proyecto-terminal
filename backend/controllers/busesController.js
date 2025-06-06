@@ -32,6 +32,7 @@ const crearEmpresa = async (req, res) => {
     res.status(500).json({ msg: 'Error al crear la empresa' });
   }
 };
+
 const obtenerBusesPorEstado = async (req, res) => {
   const { estado } = req.query;
 
@@ -77,6 +78,26 @@ const listarBuses = async (req, res) => {
       res.status(500).json({ msg: 'Error al obtener los buses' });
     }
   };
+const obtenerBusesDisponibles = async (req, res) => {
+  try {
+    // Buscar el documento de estado que corresponda a 'DISPONIBLE' (en mayúsculas)
+    const estadoDoc = await Estado.findOne({ estado: 'DISPONIBLE' });
+    if (!estadoDoc) return res.status(404).json({ msg: 'Estado "DISPONIBLE" no encontrado' });
+
+    // Buscar los buses que tengan ese estado
+    const buses = await Buses.find({ estado: estadoDoc._id })
+      .populate('conductor', 'nombre')
+      .populate('copiloto', 'nombre')
+      .populate('dueño', 'nombre')
+      .populate('id_empresa', 'nombre');
+
+    res.json(buses);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Error al obtener los buses disponibles' });
+  }
+};
+
 
 
 const agregarBus = async (req, res) => {
@@ -226,6 +247,7 @@ export {
     crearEmpresa,
     eliminarBus,
     listarBuses,
+    obtenerBusesDisponibles,
     listarEstados,
     listarEmpresas,
     obtenerBusesPorEstado

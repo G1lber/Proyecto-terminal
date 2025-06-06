@@ -12,6 +12,7 @@ Entre 100 y 149 mg/100 ml: Segundo grado de embriaguez.
 150 mg/100 ml o más: Tercer grado de embriaguez. 
 
 npm install react-icons
+npm install jspdf jspdf-autotable
 
 Paleta de colores 
 #222831

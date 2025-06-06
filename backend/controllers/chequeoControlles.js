@@ -219,10 +219,72 @@ const listarChequeos = async (req, res) => {
     res.status(500).json({ msg: 'Error al obtener los chequeos' });
   }
 };
+const buscarChequeosPorPlaca = async (req, res) => {
+  try {
+    const { placa } = req.query;
+    if (!placa) return res.status(400).json({ mensaje: "Placa no proporcionada" });
+
+    const hace24Horas = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const bus = await Buses.findOne({ placa: placa.toUpperCase() });
+    if (!bus) return res.status(404).json([]);
+
+    const chequeos = await Chequeo.find({
+      id_bus: bus._id,
+      createdAt: { $gte: hace24Horas },
+    })
+      .populate('id_mecanico')
+      .populate('id_conductor')
+      .populate('id_bus');
+
+    console.log(chequeos)
+    res.json(chequeos);
+  } catch (error) {
+    console.error("Error al buscar chequeos:", error);
+    res.status(500).json({ mensaje: 'Error del servidor' });
+  }
+};
+const buscarChequeosPorPlacaSinFiltroFecha = async (req, res) => {
+  try {
+    const { placa } = req.query;
+    if (!placa) return res.status(400).json({ mensaje: "Placa no proporcionada" });
+
+    const bus = await Buses.findOne({ placa: placa.toUpperCase() });
+    if (!bus) return res.status(404).json([]);
+
+    const chequeos = await Chequeo.find({
+      id_bus: bus._id,
+    })
+      .populate('id_mecanico')
+      .populate('id_conductor')
+      .populate('id_bus');
+
+    res.json(chequeos);
+  } catch (error) {
+    console.error("Error al buscar chequeos:", error);
+    res.status(500).json({ mensaje: 'Error del servidor' });
+  }
+};
+const obtenerChequeoPorId = async (req, res) => {
+  try {
+    const chequeo = await Chequeo.findById(req.params.id)
+      .populate('id_bus id_mecanico id_conductor'); // o como necesites poblar referencias
+    if (!chequeo) {
+      return res.status(404).json({ msg: 'Chequeo no encontrado' });
+    }
+    res.json(chequeo);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Error en el servidor' });
+  }
+};
 
 export{
     crearChequeo,
     editarChequeo,
     eliminarChequeo,
-    listarChequeos
+    listarChequeos,
+    buscarChequeosPorPlaca,
+    buscarChequeosPorPlacaSinFiltroFecha,
+    obtenerChequeoPorId
 };

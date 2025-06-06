@@ -62,11 +62,17 @@ const obtenerUsuarios = async (req, res) => {
         res.status(500).json({ msg: "Error al obtener los usuarios" });
     }
 };
-const perfil = async(req, res) =>{
-    const { usuario } = req
+const perfil = async (req, res) => {
+  const { usuario } = req;
 
-    res.json(usuario)
-}
+  res.json({
+    usuario: {
+      _id: usuario._id,
+      nombre: usuario.nombre,
+      rol: usuario.rol.rol || usuario.rol, 
+    }
+  });
+};
 const buscarUsuarios = async (req, res) => {
   const { q } = req.query;
 
