@@ -1,57 +1,51 @@
-import express from 'express'
-import conectarDB from './config/db.js';
-import mongoose from "mongoose"
-import dotenv from "dotenv";
-import cors from "cors";
-import usuarioRoutes from "./routes/usuarioRoutes.js"
-import rolRoutes from "./routes/rolRoutes.js"
-import busesRoutes from "./routes/busesRoutes.js"
-import chequeoRoutes from "./routes/chequeoRoutes.js"
-import reporteRouter from "./routes/reportesRouter.js"
-import checkAuth from './middleware/checkAuth.js';
-// import proyectoRoutes from "./routes/proyectoRoutes.js"
-// import tareaRoutes from "./routes/tareaRoutes.js"
+import express from 'express';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import cors from 'cors';
 
-const app = express();
-//Procesar la informacion tipo Json
-app.use(express.json())
+import usuarioRoutes from "./routes/usuarioRoutes.js";
+import rolRoutes from "./routes/rolRoutes.js";
+import busesRoutes from "./routes/busesRoutes.js";
+import chequeoRoutes from "./routes/chequeoRoutes.js";
+import reporteRouter from "./routes/reportesRouter.js";
+import checkAuth from './middleware/checkAuth.js';
 
 dotenv.config();
 
-// conectarDB();
+const app = express();
+app.use(express.json());
 
-//Configurar CORS
-const whitelist = [process.env.FRONTEND_URL]
-
+// CORS config
+const whitelist = [process.env.FRONTEND_URL];
 const corsOptions = {
-    origin: function(origin, callback){
-        if (whitelist.includes(origin)) {
-            //Puede consultar la API
-            callback(null, true)
-        }else{
-            //No esta permitido el req
-            callback(new Error("Error de Cors"))
-        }
+  origin: function (origin, callback) {
+    if (!origin || whitelist.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Error de CORS"));
     }
-}
-app.use(cors(corsOptions))
-//Routing
+  },
+  credentials: true
+};
+app.use(cors(corsOptions));
+
+// Routes
 app.get('/ping', (req, res) => {
   res.json({ msg: 'Servidor funcionando correctamente' });
 });
-app.use('/terminal/usuarios', usuarioRoutes )
-app.use('/terminal/rol', rolRoutes )
-app.use('/terminal/buses',checkAuth, busesRoutes )
-app.use('/terminal/chequeo',checkAuth, chequeoRoutes )
-app.use('/terminal/reportes',checkAuth, reporteRouter )
-// app.use('/api/tareas', tareaRoutes )
+app.use('/terminal/usuarios', usuarioRoutes);
+app.use('/terminal/rol', rolRoutes);
+app.use('/terminal/buses', checkAuth, busesRoutes);
+app.use('/terminal/chequeo', checkAuth, chequeoRoutes);
+app.use('/terminal/reportes', checkAuth, reporteRouter);
 
-// Conexion a la base de datos
+// DB connection
 mongoose.connect(process.env.MONGO_URL)
-.then(()=> console.log("Conectando"))
-.catch((error) =>console.log(error))
+  .then(() => console.log("🟢 Conectado a MongoDB"))
+  .catch((error) => console.error("🔴 Error conectando a MongoDB:", error));
 
+// Start server
 const PORT = process.env.PORT || 3000;
-app.listen(3000,()=>{
-    console.log(`Servidor corriendo en el puerto ${PORT}`)
-})
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
+});
