@@ -1,7 +1,7 @@
 import Usuario from "../models/Usuario.js";
 import Rol from '../models/Rol.js';
 import Login from "../models/Login.js";
-import ExamenAlcoholemia from "../models/Examenalcoholemia.js";
+import ExamenAlcoholemia from "../models/ExamenAlcoholemia.js";
 import bcrypt from 'bcrypt'; // si quieres encriptar la contraseña
 import jwt from 'jsonwebtoken';
 
