@@ -47,7 +47,7 @@ export default function Reportes() {
   const buscarChequeos = async () => {
     const token = localStorage.getItem("token");
     try {
-      const { data } = await clienteAxios.get(`/chequeo/buscar?placa=${placa}`, {
+      const { data } = await clienteAxios.get(`/chequeo/buscar-reportes?placa=${placa}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setResultados(data);
