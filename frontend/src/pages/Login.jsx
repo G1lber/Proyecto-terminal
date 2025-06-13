@@ -12,9 +12,6 @@ const Login = () => {
   const navigate = useNavigate();
   const { setAuth } = useAuth(); // ✅ Usar el contexto
 
-  const particlesInit = useCallback(async (engine) => {
-    await loadFireflyPreset(engine);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,15 +31,7 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4" style={{ backgroundColor: '#222831' }}>
-      <Particles
-        id="tsparticles"
-        init={particlesInit}
-        options={{
-          preset: 'firefly',
-          background: { color: { value: '#222831' } },
-        }}
-        className="absolute inset-0 z-0"
-      />
+      
 
       <div
         className="relative z-10 w-full max-w-sm p-8 rounded-2xl shadow-lg"
